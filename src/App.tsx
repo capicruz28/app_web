@@ -1,5 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
+import { AuthProvider } from './context/AuthContext';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Login from './pages/auth/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import Home from './pages/Home';
 import RecursosHumanos from './pages/RecursosHumanos';
@@ -17,40 +21,49 @@ import Eficiencia from './pages/manufactura/costura/Eficiencia';
 import Acabado from './pages/manufactura/Acabado';
 import Administracion from './pages/Administracion';
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Home />} />
-            <Route path="recursos-humanos">
-              <Route index element={<RecursosHumanos />} />
-              <Route path="asistencia" element={<Asistencia />} />
-              <Route path="vacaciones" element={<Vacaciones />} />
-            </Route>
-            <Route path="planeamiento">
-              <Route index element={<Planeamiento />} />
-              <Route path="ontime" element={<Ontime />} />
-              <Route path="despacho" element={<Despacho />} />
-              <Route path="leadtime" element={<LeadTime />} />
-            </Route>
-            <Route path="textil" element={<Textil />} />
-            <Route path="manufactura">
-              <Route index element={<Manufactura />} />
-              <Route path="corte" element={<Corte />} />
-              <Route path="costura">
-                <Route index element={<Costura />} />
-                <Route path="eficiencia" element={<Eficiencia />} />
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/" element={<MainLayout />}>
+                  <Route index element={<Home />} />
+                  <Route path="recursos-humanos">
+                    <Route index element={<RecursosHumanos />} />
+                    <Route path="asistencia" element={<Asistencia />} />
+                    <Route path="vacaciones" element={<Vacaciones />} />
+                  </Route>
+                  <Route path="planeamiento">
+                    <Route index element={<Planeamiento />} />
+                    <Route path="ontime" element={<Ontime />} />
+                    <Route path="despacho" element={<Despacho />} />
+                    <Route path="leadtime" element={<LeadTime />} />
+                  </Route>
+                  <Route path="textil" element={<Textil />} />
+                  <Route path="manufactura">
+                    <Route index element={<Manufactura />} />
+                    <Route path="corte" element={<Corte />} />
+                    <Route path="costura">
+                      <Route index element={<Costura />} />
+                      <Route path="eficiencia" element={<Eficiencia />} />
+                    </Route>
+                    <Route path="acabado" element={<Acabado />} />
+                  </Route>
+                  <Route path="administracion" element={<Administracion />} />
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Route>
               </Route>
-              <Route path="acabado" element={<Acabado />} />
-            </Route>
-            <Route path="administracion" element={<Administracion />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </ThemeProvider>
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

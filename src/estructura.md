@@ -1,0 +1,41 @@
+```
+└── 📁src
+    └── 📁assets
+        └── react.svg
+    └── 📁components
+        └── 📁layout
+            └── Header.tsx
+            └── MainLayout.tsx
+            └── Sidebar.tsx
+        └── ThemeSwitch.tsx
+        └── 📁types
+    └── 📁context
+        └── ThemeContext.tsx
+    └── 📁pages
+        └── Administracion.tsx
+        └── Home.tsx
+        └── 📁manufactura
+        └── Manufactura.tsx
+            └── Acabado.tsx
+            └── Corte.tsx
+            └── 📁costura
+            └── Costura.tsx
+                └── Eficiencia.tsx
+        └── 📁planeamiento
+        └── Planeamiento.tsx
+            └── Despacho.tsx
+            └── LeadTime.tsx
+            └── Ontime.tsx
+        └── 📁recursos-humanos
+            └── Asistencia.tsx
+            └── Vacaciones.tsx
+        └── RecursosHumanos.tsx
+        └── Textil.tsx
+    └── 📁styles
+        └── global.css
+    └── App.css
+    └── App.tsx
+    └── index.css
+    └── main.tsx
+    └── vite-env.d.ts
+```
