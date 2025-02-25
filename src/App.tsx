@@ -20,6 +20,7 @@ import Costura from './pages/manufactura/Costura';
 import Eficiencia from './pages/manufactura/costura/Eficiencia';
 import Acabado from './pages/manufactura/Acabado';
 import Administracion from './pages/Administracion';
+import { Toaster } from 'react-hot-toast';
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ function App() {
                 </Route>
               </Route>
             </Routes>
+            <Toaster position="top-right" />
           </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>

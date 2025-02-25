@@ -19,3 +19,9 @@ export interface LoginCredentials {
     user: AuthResponse['user'] | null;
     token: string | null;
   }
+
+  export interface ApiError {
+    message: string;
+    status: number;
+    details?: string;
+  }

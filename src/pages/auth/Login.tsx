@@ -2,9 +2,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/auth.service';
+import { getErrorMessage } from '../../services/error.service';
 import Cookies from 'js-cookie';
 
 const Login = () => {
@@ -19,6 +20,13 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validación básica
+    if (!formData.username || !formData.password) {
+      toast.error('Por favor complete todos los campos');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -27,11 +35,22 @@ const Login = () => {
         user: response.user,
         token: response.access_token,
       });
-      Cookies.set('token', response.access_token);
-      toast.success('Inicio de sesión exitoso');
+      Cookies.set('token', response.access_token, { expires: 7 });
+      toast.success('¡Bienvenido!', {
+        duration: 3000,
+        position: 'top-right',
+      });
       navigate('/');
-    } catch (error) {
-      toast.error('Credenciales inválidas');
+    } catch (error: any) {
+      const errorData = getErrorMessage(error);
+      toast.error(errorData.message, {
+        duration: 4000,
+        position: 'top-right',
+        style: {
+          background: '#FEE2E2',
+          color: '#DC2626',
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -115,9 +134,16 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="btn btn-primary w-full"
+            className="btn btn-primary w-full flex items-center justify-center"
           >
-            {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+            {loading ? (
+              <>
+                <Loader className="animate-spin -ml-1 mr-3 h-5 w-5" />
+                Iniciando sesión...
+              </>
+            ) : (
+              'Iniciar Sesión'
+            )}
           </button>
 
           <div className="relative">
@@ -142,6 +168,13 @@ const Login = () => {
             />
             Continuar con Google
           </button>
+
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            ¿No tienes una cuenta?{' '}
+            <a href="#" className="font-medium text-primary hover:text-primary/80">
+              Regístrate
+            </a>
+          </p>
         </form>
       </div>
     </div>
