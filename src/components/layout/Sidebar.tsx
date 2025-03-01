@@ -1,186 +1,134 @@
-import React, { useState } from 'react';
+// src/components/layout/Sidebar.tsx
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
-import {
-  Users,
-  ClipboardList,
-  Scissors,
-  Factory,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
-  Clock,
-  Calendar,
-  Sun,
-  Moon
-} from 'lucide-react';
 import { Popover } from 'react-tiny-popover';
+import * as LucideIcons from 'lucide-react';
+import { MenuItem, SidebarProps } from '../../types/menu.types';
+import { menuService } from '../../services/menu.service';
 
-interface SidebarProps {
-  isCollapsed: boolean;
-  toggleSidebar: () => void;
-}
-
-interface MenuItem {
-  name: string;
-  icon: React.FC<any>;
-  path: string;
-  subItems?: MenuItem[];
-}
-
-const menuItems: MenuItem[] = [
-  {
-    name: 'Recursos Humanos',
-    icon: Users,
-    path: '/recursos-humanos',
-    subItems: [
-      { name: 'Asistencia', icon: Clock, path: '/recursos-humanos/asistencia' },
-      { name: 'Vacaciones', icon: Calendar, path: '/recursos-humanos/vacaciones' }
-    ]
-  },
-  {
-    name: 'Planeamiento',
-    icon: ClipboardList,
-    path: '/planeamiento',
-    subItems: [
-      { name: 'Ontime', icon: Clock, path: '/planeamiento/ontime' },
-      { name: 'Despacho', icon: Clock, path: '/planeamiento/despacho' },
-      { name: 'LeadTime', icon: Clock, path: '/planeamiento/leadtime' }
-    ]
-  },
-  { name: 'Textil', icon: Scissors, path: '/textil' },
-  {
-    name: 'Manufactura',
-    icon: Factory,
-    path: '/manufactura',
-    subItems: [
-      { name: 'Corte', icon: Scissors, path: '/manufactura/corte' },
-      {
-        name: 'Costura',
-        icon: Scissors,
-        path: '/manufactura/costura',
-        subItems: [
-          { name: 'Eficiencia', icon: Clock, path: '/manufactura/costura/eficiencia' }
-        ]
-      },
-      { name: 'Acabado', icon: Scissors, path: '/manufactura/acabado' }
-    ]
-  },
-  { name: 'Administración', icon: Settings, path: '/administracion' },
-];
-
-const PopoverContent = ({ 
-  item, 
-  nestedPopover, 
-  setNestedPopover, 
-  handleNavigate,
-  currentPath 
-}: { 
+interface PopoverContentProps {
   item: MenuItem;
   nestedPopover: string | null;
   setNestedPopover: (path: string | null) => void;
   handleNavigate: (path: string) => void;
   currentPath: string;
+}
+
+const PopoverContent: React.FC<PopoverContentProps> = ({
+  item,
+  nestedPopover,
+  setNestedPopover,
+  handleNavigate,
+  currentPath
 }) => {
   const isActive = (path: string) => currentPath.startsWith(path);
 
   return (
-    <div className="bg-white dark:bg-gray-800 text-gray-700 dark:text-white rounded-lg shadow-lg min-w-[200px] ml-1 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 font-medium">
-        {item.name}
-      </div>
-      <div className="py-1">
-        {item.subItems?.map((subItem) => (
-          <div key={subItem.path}>
-            {subItem.subItems ? (
-              <Popover
-                isOpen={nestedPopover === subItem.path}
-                positions={['right']}
-                content={
-                  <div className="bg-white dark:bg-gray-800 text-gray-700 dark:text-white rounded-lg shadow-lg min-w-[200px]">
-                    {subItem.subItems.map((nestedItem) => (
-                      <button
-                        key={nestedItem.path}
-                        className={`flex items-center w-full px-4 py-2 text-left transition-colors
-                          ${isActive(nestedItem.path)
-                            ? 'bg-secondary text-white'
-                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                          }`}
-                        onClick={() => handleNavigate(nestedItem.path)}
-                      >
-                        <nestedItem.icon className="w-4 h-4 min-w-[16px]" />
-                        <span className="ml-4">{nestedItem.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                }
-                onClickOutside={() => setNestedPopover(null)}
-              >
-                <button
-                  className={`flex items-center w-full px-4 py-2 text-left transition-colors
-                    ${isActive(subItem.path)
-                      ? 'bg-secondary text-white'
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setNestedPopover(nestedPopover === subItem.path ? null : subItem.path);
-                  }}
-                >
-                  <subItem.icon className="w-4 h-4 min-w-[16px]" />
-                  <span className="ml-4 flex-1">{subItem.name}</span>
-                  <ChevronRight size={16} className="ml-2" />
-                </button>
-              </Popover>
-            ) : (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg min-w-[200px] py-1 ml-1">
+      {item.children?.map((subItem) => (
+        <div key={subItem.MenuId}>
+          {subItem.children && subItem.children.length > 0 ? (
+            <Popover
+              isOpen={nestedPopover === subItem.Path}
+              positions={['right']}
+              content={
+                <PopoverContent
+                  item={subItem}
+                  nestedPopover={nestedPopover}
+                  setNestedPopover={setNestedPopover}
+                  handleNavigate={handleNavigate}
+                  currentPath={currentPath}
+                />
+              }
+              onClickOutside={() => setNestedPopover(null)}
+            >
               <button
                 className={`flex items-center w-full px-4 py-2 text-left transition-colors
-                  ${isActive(subItem.path)
+                  ${isActive(subItem.Path)
                     ? 'bg-secondary text-white'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
-                onClick={() => handleNavigate(subItem.path)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNestedPopover(nestedPopover === subItem.Path ? null : subItem.Path);
+                }}
               >
-                <subItem.icon className="w-4 h-4 min-w-[16px]" />
-                <span className="ml-4">{subItem.name}</span>
+                {getIcon(subItem.Icon)}
+                <span className="ml-3">{subItem.Name}</span>
+                <LucideIcons.ChevronRight className="ml-auto w-4 h-4" />
               </button>
-            )}
-          </div>
-        ))}
-      </div>
+            </Popover>
+          ) : (
+            <button
+              className={`flex items-center w-full px-4 py-2 text-left transition-colors
+                ${isActive(subItem.Path)
+                  ? 'bg-secondary text-white'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                }`}
+              onClick={() => handleNavigate(subItem.Path)}
+            >
+              {getIcon(subItem.Icon)}
+              <span className="ml-3">{subItem.Name}</span>
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
 
+const getIcon = (iconName: string) => {
+  const Icon = (LucideIcons as any)[iconName];
+  return Icon ? <Icon className="w-5 h-5" /> : <LucideIcons.Circle className="w-5 h-5" />;
+};
+
 const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [popoverOpen, setPopoverOpen] = useState<string | null>(null);
   const [nestedPopover, setNestedPopover] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { isDarkMode, toggleDarkMode } = useTheme();
+
+  useEffect(() => {
+    fetchMenu();
+  }, []);
+
+  const fetchMenu = async () => {
+    try {
+      const data = await menuService.getMenu();
+      setMenuItems(data);
+    } catch (error) {
+      console.error('Error loading menu:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const isActive = (path: string) => location.pathname.startsWith(path);
 
   const handleMenuClick = (item: MenuItem) => {
     if (isCollapsed) {
-      if (item.subItems) {
-        setPopoverOpen(popoverOpen === item.name ? null : item.name);
+      if (item.children?.length > 0) {
+        setPopoverOpen(popoverOpen === item.Path ? null : item.Path);
         setNestedPopover(null);
       } else {
-        navigate(item.path);
+        navigate(item.Path);
         setPopoverOpen(null);
         setNestedPopover(null);
       }
     } else {
-      if (item.subItems) {
+      if (item.children?.length > 0) {
         setExpandedItems(prev =>
-          prev.includes(item.name) ? prev.filter(name => name !== item.name) : [...prev, item.name]
+          prev.includes(item.Path)
+            ? prev.filter(path => path !== item.Path)
+            : [...prev, item.Path]
         );
       } else {
-        navigate(item.path);
+        navigate(item.Path);
       }
     }
   };
@@ -191,33 +139,49 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
     setNestedPopover(null);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <LucideIcons.Loader className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`bg-white dark:bg-gray-800 text-gray-700 dark:text-white transition-all duration-300
+      className={`
+        bg-white dark:bg-gray-800 
+        text-gray-700 dark:text-white 
+        transition-all duration-300
         ${isCollapsed ? 'w-16' : 'w-64'}
-        min-h-screen fixed left-0 top-0 z-50 border-r border-gray-200 dark:border-gray-700`}
+        min-h-screen fixed left-0 top-0 z-50 
+        border-r border-gray-200 dark:border-gray-700
+      `}
     >
       <div className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
         {!isCollapsed && (
-          <h1 className="text-xl font-bold text-secondary">PeruFashions</h1>
+          <h1 className="text-xl font-bold text-primary">PeruFashions</h1>
         )}
         <button
           onClick={toggleSidebar}
           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
-          aria-label={isCollapsed ? "Expandir menú" : "Colapsar menú"}
         >
-          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          {isCollapsed ? (
+            <LucideIcons.ChevronRight size={20} />
+          ) : (
+            <LucideIcons.ChevronLeft size={20} />
+          )}
         </button>
       </div>
 
       <nav className="mt-2">
         {menuItems.map((item) => (
-          <div key={item.path}>
+          <div key={item.MenuId}>
             <Popover
-              isOpen={popoverOpen === item.name}
+              isOpen={isCollapsed && popoverOpen === item.Path}
               positions={['right']}
               content={
-                <PopoverContent 
+                <PopoverContent
                   item={item}
                   nestedPopover={nestedPopover}
                   setNestedPopover={setNestedPopover}
@@ -231,25 +195,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
               }}
             >
               <button
-                className={`flex items-center px-4 py-3 w-full text-left transition-colors
-                  ${isActive(item.path)
+                className={`
+                  flex items-center w-full px-4 py-2 text-left transition-colors
+                  ${isActive(item.Path)
                     ? 'bg-secondary text-white'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                  }`}
+                  }
+                `}
                 onClick={() => handleMenuClick(item)}
               >
-                <item.icon className={`w-5 h-5 min-w-[20px] ${
-                  isActive(item.path) ? 'text-white' : 'text-gray-500 dark:text-gray-400'
-                }`} />
+                {getIcon(item.Icon)}
                 {!isCollapsed && (
                   <>
-                    <span className="ml-4 flex-1">{item.name}</span>
-                    {item.subItems && (
+                    <span className="ml-3 flex-1">{item.Name}</span>
+                    {item.children?.length > 0 && (
                       <span className="ml-auto">
-                        {expandedItems.includes(item.name) ? (
-                          <ChevronUp size={16} />
+                        {expandedItems.includes(item.Path) ? (
+                          <LucideIcons.ChevronDown className="w-4 h-4" />
                         ) : (
-                          <ChevronDown size={16} />
+                          <LucideIcons.ChevronRight className="w-4 h-4" />
                         )}
                       </span>
                     )}
@@ -258,59 +222,49 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
               </button>
             </Popover>
 
-            {!isCollapsed && item.subItems && expandedItems.includes(item.name) && (
-              <div className="pl-4">
-                {item.subItems.map((subItem) => (
-                  <div key={subItem.path}>
+            {!isCollapsed && item.children && expandedItems.includes(item.Path) && (
+              <div className="pl-4 bg-gray-50 dark:bg-gray-800">
+                {item.children.map((subItem) => (
+                  <div key={subItem.MenuId}>
                     <button
-                      className={`flex items-center w-full px-4 py-2 text-left transition-colors
-                        ${isActive(subItem.path)
+                      className={`
+                        flex items-center w-full px-4 py-2 text-left transition-colors
+                        ${isActive(subItem.Path)
                           ? 'bg-secondary text-white'
                           : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
-                      onClick={() => {
-                        if (subItem.subItems) {
-                          setExpandedItems(prev =>
-                            prev.includes(subItem.name)
-                              ? prev.filter(name => name !== subItem.name)
-                              : [...prev, subItem.name]
-                          );
-                        } else {
-                          navigate(subItem.path);
                         }
-                      }}
+                      `}
+                      onClick={() => handleMenuClick(subItem)}
                     >
-                      <subItem.icon className={`w-4 h-4 min-w-[16px] ${
-                        isActive(subItem.path) ? 'text-white' : 'text-gray-500 dark:text-gray-400'
-                      }`} />
-                      <span className="ml-4 flex-1">{subItem.name}</span>
-                      {subItem.subItems && (
+                      {getIcon(subItem.Icon)}
+                      <span className="ml-3 flex-1">{subItem.Name}</span>
+                      {subItem.children?.length > 0 && (
                         <span className="ml-auto">
-                          {expandedItems.includes(subItem.name) ? (
-                            <ChevronUp size={16} />
+                          {expandedItems.includes(subItem.Path) ? (
+                            <LucideIcons.ChevronDown className="w-4 h-4" />
                           ) : (
-                            <ChevronDown size={16} />
+                            <LucideIcons.ChevronRight className="w-4 h-4" />
                           )}
                         </span>
                       )}
                     </button>
 
-                    {subItem.subItems && expandedItems.includes(subItem.name) && (
+                    {subItem.children?.length > 0 && expandedItems.includes(subItem.Path) && (
                       <div className="pl-4">
-                        {subItem.subItems.map((nestedItem) => (
+                        {subItem.children.map((nestedItem) => (
                           <button
-                            key={nestedItem.path}
-                            className={`flex items-center w-full px-4 py-2 text-left transition-colors
-                              ${isActive(nestedItem.path)
+                            key={nestedItem.MenuId}
+                            className={`
+                              flex items-center w-full px-4 py-2 text-left transition-colors
+                              ${isActive(nestedItem.Path)
                                 ? 'bg-secondary text-white'
                                 : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                              }`}
-                            onClick={() => navigate(nestedItem.path)}
+                              }
+                            `}
+                            onClick={() => handleNavigate(nestedItem.Path)}
                           >
-                            <nestedItem.icon className={`w-4 h-4 min-w-[16px] ${
-                              isActive(nestedItem.path) ? 'text-white' : 'text-gray-500 dark:text-gray-400'
-                            }`} />
-                            <span className="ml-4">{nestedItem.name}</span>
+                            {getIcon(nestedItem.Icon)}
+                            <span className="ml-3">{nestedItem.Name}</span>
                           </button>
                         ))}
                       </div>
@@ -326,20 +280,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar }) => {
       <div className="absolute bottom-4 left-0 right-0 flex justify-center px-4">
         <button
           onClick={toggleDarkMode}
-          className={`flex items-center justify-center p-2 rounded-lg transition-colors
+          className={`
+            flex items-center justify-center p-2 rounded-lg
+            transition-colors duration-200
             ${isCollapsed ? 'w-10 h-10' : 'w-full'}
-            hover:bg-gray-100 dark:hover:bg-gray-700`}
-          aria-label="Toggle theme"
+            hover:bg-gray-100 dark:hover:bg-gray-700
+          `}
         >
           {!isCollapsed && (
-            <span className="mr-2 text-sm">
+            <span className="mr-2">
               {isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
             </span>
           )}
           {isDarkMode ? (
-            <Sun className="w-5 h-5 text-yellow-500" />
+            <LucideIcons.Sun className="w-5 h-5 text-yellow-500" />
           ) : (
-            <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <LucideIcons.Moon className="w-5 h-5" />
           )}
         </button>
       </div>
