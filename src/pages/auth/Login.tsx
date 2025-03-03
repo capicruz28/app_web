@@ -6,7 +6,6 @@ import { Eye, EyeOff, Loader } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/auth.service';
 import { getErrorMessage } from '../../services/error.service';
-import Cookies from 'js-cookie';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -21,7 +20,6 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validación básica
     if (!formData.username || !formData.password) {
       toast.error('Por favor complete todos los campos');
       return;
@@ -31,11 +29,7 @@ const Login = () => {
 
     try {
       const response = await authService.login(formData);
-      setAuth({
-        user: response.user,
-        token: response.access_token,
-      });
-      Cookies.set('token', response.access_token, { expires: 7 });
+      setAuth(response); // Ahora pasamos la respuesta completa
       toast.success('¡Bienvenido!', {
         duration: 3000,
         position: 'top-right',
@@ -123,14 +117,6 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <a href="#" className="font-medium text-primary hover:text-primary/80">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
-          </div>
-
           <button
             type="submit"
             disabled={loading}
@@ -145,36 +131,6 @@ const Login = () => {
               'Iniciar Sesión'
             )}
           </button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
-                o
-              </span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="btn btn-secondary w-full flex items-center justify-center"
-          >
-            <img
-              className="h-5 w-5 mr-2"
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-            />
-            Continuar con Google
-          </button>
-
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            ¿No tienes una cuenta?{' '}
-            <a href="#" className="font-medium text-primary hover:text-primary/80">
-              Regístrate
-            </a>
-          </p>
         </form>
       </div>
     </div>
