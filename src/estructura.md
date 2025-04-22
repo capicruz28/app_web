@@ -33,6 +33,9 @@
         └── Textil.tsx
     └── 📁styles
         └── global.css
+    └── 📁types
+        └── auth.types.ts       
+        └── menu.types.ts
     └── App.css
     └── App.tsx
     └── index.css

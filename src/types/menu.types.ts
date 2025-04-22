@@ -1,18 +1,19 @@
 // src/types/menu.types.ts
 
 export interface MenuItem {
-    MenuId: number;
-    Name: string;
-    Icon: string;
-    Path: string;
-    OrderIndex: number;
-    Level: number;
-    ParentId: number | null;
+    menu_id: number;
+    nombre: string;
+    icono: string;
+    ruta: string;
+    orden: number;
+    level: number;
+    es_activo: boolean;
+    padre_menu_id: number | null;
     children: MenuItem[];
   }
   
   export interface MenuResponse {
-    data: MenuItem[];
+    menu: MenuItem[];
   }
   
   // Tipos adicionales para el componente Sidebar

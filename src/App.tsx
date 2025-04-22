@@ -1,26 +1,42 @@
+// src/App.tsx (MODIFICADO PARA USAR AdminLayout)
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext';
-import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext'; // Ajusta ruta
+import { AuthProvider } from './context/AuthContext';   // Ajusta ruta
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Login from './pages/auth/Login';
-import ProtectedRoute from './components/ProtectedRoute';
-import MainLayout from './components/layout/MainLayout';
-import Home from './pages/Home';
-import RecursosHumanos from './pages/RecursosHumanos';
-import Asistencia from './pages/recursos-humanos/Asistencia';
-import Vacaciones from './pages/recursos-humanos/Vacaciones';
-import Planeamiento from './pages/Planeamiento';
-import Ontime from './pages/planeamiento/Ontime';
-import Despacho from './pages/planeamiento/Despacho';
-import LeadTime from './pages/planeamiento/LeadTime';
-import Textil from './pages/Textil';
-import Manufactura from './pages/Manufactura';
-import Corte from './pages/manufactura/Corte';
-import Costura from './pages/manufactura/Costura';
-import Eficiencia from './pages/manufactura/costura/Eficiencia';
-import Acabado from './pages/manufactura/Acabado';
-import Administracion from './pages/Administracion';
 import { Toaster } from 'react-hot-toast';
+
+// Layouts y Protección
+import ProtectedRoute from './components/ProtectedRoute'; // Ajusta ruta
+import MainLayout from './components/layout/MainLayout'; // Ajusta ruta
+import AdminLayout from './components/layout/AdminLayout'; // <-- IMPORTAR NUEVO LAYOUT
+
+// Páginas Públicas
+import Login from './pages/auth/Login'; // Ajusta ruta
+import UnauthorizedPage from './pages/UnauthorizedPage'; // Ajusta ruta
+
+// Páginas Principales/Normales (Importaciones sin cambios)
+import Home from './pages/Home'; // Ajusta ruta
+import RecursosHumanos from './pages/RecursosHumanos'; // Ajusta ruta
+import Asistencia from './pages/recursos-humanos/Asistencia'; // Ajusta ruta
+import Vacaciones from './pages/recursos-humanos/Vacaciones'; // Ajusta ruta
+import Planeamiento from './pages/Planeamiento'; // Ajusta ruta
+import Ontime from './pages/planeamiento/Ontime'; // Ajusta ruta
+import Despacho from './pages/planeamiento/Despacho'; // Ajusta ruta
+import LeadTime from './pages/planeamiento/LeadTime'; // Ajusta ruta
+import Textil from './pages/Textil'; // Ajusta ruta
+import Manufactura from './pages/Manufactura'; // Ajusta ruta
+import Corte from './pages/manufactura/Corte'; // Ajusta ruta
+import Costura from './pages/manufactura/Costura'; // Ajusta ruta
+import Eficiencia from './pages/manufactura/costura/Eficiencia'; // Ajusta ruta
+import Acabado from './pages/manufactura/Acabado'; // Ajusta ruta
+import Administracion from './pages/Administracion'; // Ajusta ruta
+
+// Páginas de Administración
+import UserManagementPage from './pages/admin/UserManagementPage'; // Ajusta ruta
+import RoleManagementPage from './pages/admin/RoleManagementPage'; // Ajusta ruta
+// ... (importa otras páginas de admin si las tienes) ...
+
 
 const queryClient = new QueryClient();
 
@@ -28,13 +44,23 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthProvider>
+        <AuthProvider> {/* Envuelve todo en AuthProvider */}
           <BrowserRouter>
             <Routes>
+              {/* --- Rutas Públicas --- */}
               <Route path="/login" element={<Login />} />
+              <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+              {/* --- Rutas Protegidas (Usuario Normal - Usan MainLayout) --- */}
+              {/* Protección base: Requiere estar autenticado */}
               <Route element={<ProtectedRoute />}>
+                {/* Layout principal para usuarios autenticados */}
                 <Route path="/" element={<MainLayout />}>
-                  <Route index element={<Home />} />
+                  {/* Redirección del índice a la página principal */}
+                  <Route index element={<Navigate to="/home" replace />} />
+
+                  {/* Rutas accesibles para cualquier usuario autenticado */}
+                  <Route path="home" element={<Home />} />
                   <Route path="recursos-humanos">
                     <Route index element={<RecursosHumanos />} />
                     <Route path="asistencia" element={<Asistencia />} />
@@ -56,12 +82,50 @@ function App() {
                     </Route>
                     <Route path="acabado" element={<Acabado />} />
                   </Route>
+                  {/* Si /administracion es una página normal, va aquí */}
                   <Route path="administracion" element={<Administracion />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Route>
-              </Route>
+
+                  {/* Catch-all DENTRO de MainLayout: redirige a /home si la ruta no existe */}
+                  <Route path="*" element={<Navigate to="/home" replace />} />
+                </Route> {/* Fin MainLayout */}
+              </Route> {/* Fin ProtectedRoute base */}
+
+
+              {/* --- Rutas de Administración (Usan AdminLayout) --- */}
+              {/* Ruta padre para toda la sección /admin */}
+              <Route
+                path="/admin"
+                element={
+                  // Protección específica: Requiere rol 'admin' para acceder a CUALQUIER ruta /admin/*
+                  <ProtectedRoute requiredRole="admin">
+                    <AdminLayout /> {/* Usar el layout específico de admin */}
+                  </ProtectedRoute>
+                }
+              >
+                {/* Las rutas anidadas se renderizarán dentro del <Outlet /> de AdminLayout */}
+
+                {/* Redirigir la ruta base /admin a la página de usuarios por defecto */}
+                <Route index element={<Navigate to="usuarios" replace />} />
+
+                {/* Páginas específicas de administración (ya no necesitan ProtectedRoute individual) */}
+                <Route path="usuarios" element={<UserManagementPage />} />
+                <Route path="roles" element={<RoleManagementPage />} />
+                {/* Añade aquí más rutas específicas de admin si las tienes */}
+                {/* Ejemplo: <Route path="permisos" element={<PermissionPage />} /> */}
+
+                 {/* Catch-all DENTRO de AdminLayout: redirige a /admin/usuarios si la ruta admin no existe */}
+                 <Route path="*" element={<Navigate to="/admin/usuarios" replace />} />
+
+              </Route> {/* Fin de rutas /admin */}
+
+
+              {/* --- Catch-all Global (Opcional) --- */}
+              {/* Si ninguna ruta coincide (ni pública, ni normal, ni admin), */}
+              {/* puedes redirigir a login o mostrar una página 404 general. */}
+              {/* Ejemplo: <Route path="*" element={<Navigate to="/login" replace />} /> */}
+
             </Routes>
-            <Toaster position="top-right" />
+            <Toaster position="top-right" /> {/* Configuración global de Toaster */}
           </BrowserRouter>
         </AuthProvider>
       </ThemeProvider>
