@@ -1,4 +1,5 @@
 // src/App.tsx (MODIFICADO PARA USAR AdminLayout)
+import './index.css'
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext'; // Ajusta ruta

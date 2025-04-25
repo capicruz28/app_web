@@ -1,42 +1,60 @@
-// src/services/menu.service.ts (CORREGIDO - ¡Aplicar esta versión!)
+// src/services/menu.service.ts (ACTUALIZADO)
 
 import api from './api';
-// 1. Importar BOTH MenuItem y MenuResponse desde el archivo centralizado
-import type { MenuResponse } from '../types/menu.types'; // Usar import type
+// Importar MenuItem y MenuResponse desde el archivo centralizado
+import type { MenuItem, MenuResponse } from '../types/menu.types'; // Usar import type
 
-// 2. ELIMINAR la definición local de MenuResponse de aquí
-// interface MenuResponse {
-//   data: MenuItem[];
-// }
+// Definir un tipo para la respuesta del árbol completo, si es diferente
+// Si es igual a MenuResponse, puedes reutilizarla. Asumamos que es igual por ahora.
+type FullMenuResponse = MenuResponse; // O define una nueva si la estructura cambia
 
 export const menuService = {
   /**
-   * Obtiene el menú desde la API.
-   * Ahora devuelve una Promise que resuelve a MenuResponse ({ menu: [...] }).
+   * Obtiene el menú para el usuario autenticado (usado en Sidebar).
    */
-  // 3. Cambiar el tipo de retorno a Promise<MenuResponse>
   getMenu: async (): Promise<MenuResponse> => {
-    // 4. Asegúrate que esta ruta sea la correcta para tu API backend
-    const endpoint = '/menus/getmenu'; // O '/api/v1/menus', etc.
-
+    const endpoint = '/menus/getmenu'; // Endpoint para menú de usuario
     try {
-      // 5. Usar la MenuResponse importada como tipo genérico
       const response = await api.get<MenuResponse>(endpoint);
-
-      // 6. Validar que la respuesta tiene la propiedad 'menu' (viene de MenuResponse importada)
       if (response.data && Array.isArray(response.data.menu)) {
-         // 7. Devolver el objeto response.data completo, que es de tipo MenuResponse
          return response.data;
       } else {
          console.error(`La respuesta de la API desde ${endpoint} no tiene el formato esperado { menu: [...] }:", response.data`);
-         // Devolver una estructura válida pero vacía
          return { menu: [] };
+      }
+    } catch (error) {
+      console.error(`Error fetching menu from ${endpoint}:`, error);
+      return { menu: [] };
+    }
+  },
+
+  /**
+   * Obtiene la estructura COMPLETA del árbol de menús desde la API.
+   * Necesario para la gestión de permisos de roles.
+   * Devuelve una Promise que resuelve a MenuItem[].
+   */
+  getFullMenuTree: async (): Promise<MenuItem[]> => {
+    // Asegúrate que esta ruta sea la correcta para tu API backend que devuelve TODOS los menús
+    const endpoint = '/menus/all-structured'; // Endpoint para árbol completo
+
+    try {
+      // Usaremos FullMenuResponse como tipo genérico (asumiendo { menu: [...] })
+      const response = await api.get<FullMenuResponse>(endpoint);
+
+      // Validar que la respuesta tiene la propiedad 'menu' y es un array
+      if (response.data && Array.isArray(response.data.menu)) {
+         // Devolver directamente el array de MenuItem
+         return response.data.menu;
+      } else {
+         console.error(`La respuesta de la API desde ${endpoint} no tiene el formato esperado { menu: [...] }:", response.data`);
+         // Devolver un array vacío en caso de formato inesperado
+         return [];
       }
 
     } catch (error) {
-      console.error(`Error fetching menu from ${endpoint}:`, error);
-      // Devolver una estructura válida pero vacía en caso de error
-      return { menu: [] };
+      console.error(`Error fetching full menu tree from ${endpoint}:`, error);
+      // Devolver un array vacío en caso de error
+      return [];
     }
   }
 };

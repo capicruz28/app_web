@@ -3,12 +3,15 @@
 import React, { useState, useEffect, useCallback, ChangeEvent, FormEvent } from 'react';
 import { toast } from 'react-hot-toast';
 // --- Importar servicios y tipos de ROLES ---
-import { getRoles, createRol, updateRol, deactivateRol, reactivateRol } from '../../services/rol.service';
-import { Rol, PaginatedRolResponse, RolCreateData, RolUpdateData } from '../../types/rol.types';
+import { getRoles, createRol, updateRol, deactivateRol, reactivateRol } from '../../services/rol.service'; // Ajusta la ruta si es necesario
+import { Rol, PaginatedRolResponse, RolCreateData, RolUpdateData } from '../../types/rol.types'; // Ajusta la ruta si es necesario
 // --- Importar servicios y utilidades comunes ---
-import { Loader, Edit3, Plus, Search, EyeOff, Eye } from 'lucide-react'; // Añadir iconos necesarios
+import { Loader, Edit3, Plus, Search, EyeOff, Eye, KeyRound } from 'lucide-react'; // <--- Añadido KeyRound
 
-// --- Hook useDebounce (igual que en UserManagementPage) ---
+// --- Importar el gestor de permisos (LO CREAREMOS DESPUÉS) ---
+import RolePermissionsManager from '@/pages/admin/RolePermissionsManager'; // Descomentar cuando exista
+
+// --- Hook useDebounce ---
 function useDebounce(value: string, delay: number): string {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -24,6 +27,12 @@ const initialEditFormData: RolUpdateData = { nombre: '', descripcion: '', es_act
 
 // --- Tipo para los errores del formulario ---
 type FormErrors = { [key: string]: string | undefined };
+
+// --- Tipo para el rol objetivo de permisos (NUEVO) ---
+type PermissionsTargetRol = {
+    id: number;
+    nombre: string;
+} | null;
 
 const RoleManagementPage: React.FC = () => {
   // --- Estados de Tabla y Paginación ---
@@ -60,6 +69,10 @@ const RoleManagementPage: React.FC = () => {
   const [reactivatingRol, setReactivatingRol] = useState<Rol | null>(null);
   const [isReactivating, setIsReactivating] = useState<boolean>(false);
 
+  // --- Estados MODAL PERMISOS (NUEVO) ---
+  const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState<boolean>(false);
+  const [permissionsTargetRol, setPermissionsTargetRol] = useState<PermissionsTargetRol>(null);
+
   // --- fetchRoles ---
   const fetchRoles = useCallback(async (page: number, search: string) => {
     setIsLoading(true);
@@ -72,26 +85,25 @@ const RoleManagementPage: React.FC = () => {
       setCurrentPage(data.pagina_actual);
     } catch (err) {
       console.error("Error in fetchRoles:", err);
-      // Asegurarse que err sea un objeto con 'message' o string
       const errorMessage = typeof err === 'string' ? err : (err as Error)?.message || 'Ocurrió un error al cargar los roles.';
       setError(errorMessage);
-      toast.error(errorMessage); // Mostrar toast de error también
+      toast.error(errorMessage);
       setRoles([]);
       setTotalPages(1);
       setTotalRoles(0);
     } finally {
       setIsLoading(false);
     }
-  }, [limitPerPage]); // Dependencias: solo limitPerPage
+  }, [limitPerPage]);
 
   // --- useEffect para cargar datos ---
   useEffect(() => {
     const pageToFetch = debouncedSearchTerm !== searchTerm ? 1 : currentPage;
     if (debouncedSearchTerm !== searchTerm) {
-        setCurrentPage(1); // Reset page if search term changes
+        setCurrentPage(1);
     }
     fetchRoles(pageToFetch, debouncedSearchTerm);
-  }, [debouncedSearchTerm, currentPage, fetchRoles, searchTerm]); // Incluir searchTerm
+  }, [debouncedSearchTerm, currentPage, fetchRoles, searchTerm]);
 
   // --- Handlers de búsqueda y paginación ---
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => { setSearchTerm(event.target.value); };
@@ -105,7 +117,7 @@ const RoleManagementPage: React.FC = () => {
     setIsCreateModalOpen(true);
   };
   const handleCloseCreateModal = () => { if (!isSubmittingCreate) setIsCreateModalOpen(false); };
-  const handleNewRolChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { // Aceptar TextArea para descripción
+  const handleNewRolChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = event.target;
     const isCheckbox = type === 'checkbox';
     const val = isCheckbox ? (event.target as HTMLInputElement).checked : value;
@@ -126,13 +138,13 @@ const RoleManagementPage: React.FC = () => {
     try {
       const dataToSend: RolCreateData = {
         nombre: newRolFormData.nombre.trim(),
-        descripcion: newRolFormData.descripcion?.trim() || null, // Enviar null si está vacío
+        descripcion: newRolFormData.descripcion?.trim() || null,
         es_activo: newRolFormData.es_activo,
       };
       await createRol(dataToSend);
       handleCloseCreateModal();
       toast.success('Rol creado exitosamente.');
-      fetchRoles(1, ''); // Refresh to page 1
+      fetchRoles(1, '');
       setSearchTerm('');
     } catch (err) {
       console.error("Error creating rol:", err);
@@ -182,7 +194,7 @@ const RoleManagementPage: React.FC = () => {
       await updateRol(editingRol.rol_id, dataToUpdate);
       handleCloseEditModal();
       toast.success('Rol actualizado exitosamente.');
-      fetchRoles(currentPage, debouncedSearchTerm); // Refresh current page
+      fetchRoles(currentPage, debouncedSearchTerm);
     } catch (err) {
       console.error("Error updating rol:", err);
       const errorMessage = typeof err === 'string' ? err : (err as Error)?.message || 'Error al actualizar rol.';
@@ -205,7 +217,7 @@ const RoleManagementPage: React.FC = () => {
       await deactivateRol(deactivatingRol.rol_id);
       handleCloseDeactivateConfirm();
       toast.success('Rol desactivado exitosamente.');
-      fetchRoles(currentPage, debouncedSearchTerm); // Refresh
+      fetchRoles(currentPage, debouncedSearchTerm);
     } catch (err) {
       console.error("Error deactivating rol:", err);
       const errorMessage = typeof err === 'string' ? err : (err as Error)?.message || 'Error al desactivar rol.';
@@ -228,7 +240,7 @@ const RoleManagementPage: React.FC = () => {
       await reactivateRol(reactivatingRol.rol_id);
       handleCloseReactivateConfirm();
       toast.success('Rol reactivado exitosamente.');
-      fetchRoles(currentPage, debouncedSearchTerm); // Refresh
+      fetchRoles(currentPage, debouncedSearchTerm);
     } catch (err) {
       console.error("Error reactivating rol:", err);
       const errorMessage = typeof err === 'string' ? err : (err as Error)?.message || 'Error al reactivar rol.';
@@ -236,6 +248,20 @@ const RoleManagementPage: React.FC = () => {
     } finally {
       setIsReactivating(false);
     }
+  };
+
+  // --- FUNCIONES MODAL PERMISOS (NUEVO) ---
+  const handleOpenPermissionsModal = (rol: Rol) => {
+    setPermissionsTargetRol({ id: rol.rol_id, nombre: rol.nombre });
+    setIsPermissionsModalOpen(true);
+  };
+
+  const handleClosePermissionsModal = () => {
+    setIsPermissionsModalOpen(false);
+    // Pequeño delay opcional para animaciones antes de limpiar
+    setTimeout(() => {
+       setPermissionsTargetRol(null);
+    }, 150); // Ajusta si usas animaciones de cierre en el modal
   };
 
 
@@ -316,15 +342,15 @@ const RoleManagementPage: React.FC = () => {
                       >
                         <Edit3 className="h-4 w-4" />
                       </button>
-                      {/* Botón Permisos (Placeholder) */}
-                       <button
-                        className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 disabled:opacity-50 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                        title="Gestionar Permisos (Próximamente)"
-                        disabled // Deshabilitado por ahora
+                      {/* --- Botón Permisos (MODIFICADO) --- */}
+                      <button
+                        onClick={() => handleOpenPermissionsModal(rol)} // Llama al nuevo handler
+                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                        title="Gestionar Permisos"
                       >
-                         {/* Podrías usar un icono como ShieldCheck o Key */}
-                         <span className="text-xs font-bold">P</span> {/* Placeholder */}
+                        <KeyRound className="h-4 w-4" /> {/* Usa el icono importado */}
                       </button>
+                      {/* ----------------------------------- */}
                       {/* Botón Desactivar / Reactivar */}
                       {rol.es_activo ? (
                         <button
@@ -332,7 +358,7 @@ const RoleManagementPage: React.FC = () => {
                           className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                           title="Desactivar Rol"
                         >
-                          <EyeOff className="h-4 w-4" /> {/* Icono para desactivar */}
+                          <EyeOff className="h-4 w-4" />
                         </button>
                       ) : (
                         <button
@@ -340,7 +366,7 @@ const RoleManagementPage: React.FC = () => {
                           className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                           title="Reactivar Rol"
                         >
-                          <Eye className="h-4 w-4" /> {/* Icono para reactivar */}
+                          <Eye className="h-4 w-4" />
                         </button>
                       )}
                     </td>
@@ -358,7 +384,7 @@ const RoleManagementPage: React.FC = () => {
         </div>
       )}
 
-      {/* Controles de Paginación (igual que en UserManagementPage) */}
+      {/* Controles de Paginación */}
       {!isLoading && !error && totalRoles > limitPerPage && (
         <div className="py-4 flex items-center justify-between border-t border-gray-200 dark:border-gray-700 mt-4">
           <div>
@@ -376,7 +402,7 @@ const RoleManagementPage: React.FC = () => {
                   className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600 text-sm font-medium text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Anterior</span>
-                  <svg className="h-5 w-5" xmlns="http://w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                 </button>
                  <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200">
                     Página {currentPage} de {totalPages}
@@ -533,6 +559,23 @@ const RoleManagementPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* --- RENDERIZADO CONDICIONAL DEL MODAL DE PERMISOS (NUEVO) --- */}
+      {/* Renderiza el componente solo si hay un rol seleccionado para editar permisos */}
+       {permissionsTargetRol && (
+        <RolePermissionsManager
+          isOpen={isPermissionsModalOpen}
+          rolId={permissionsTargetRol.id}
+          rolName={permissionsTargetRol.nombre}
+          onClose={handleClosePermissionsModal}
+          // Opcional: Puedes añadir una función aquí si necesitas actualizar algo
+          // en RoleManagementPage después de guardar los permisos.
+          // onPermissionsUpdate={() => {
+          //   console.log(`Permisos actualizados para el rol ID: ${permissionsTargetRol.id}`);        
+          // }}
+        />
+      )}
+      {/* --- FIN RENDERIZADO MODAL PERMISOS --- */}
 
     </div> // Cierre del contenedor principal
   );
