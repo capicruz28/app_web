@@ -11,6 +11,7 @@ import {
   LogOut,
   Sun, // Para ThemeSwitch
   Moon, // Para ThemeSwitch
+  FolderKanban,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext'; // <-- IMPORTAR useTheme
@@ -30,6 +31,7 @@ const generalNavItems: NavItem[] = [
 const administrationNavItems: NavItem[] = [
   { to: '/admin/usuarios', icon: Users, label: 'Gestión de Usuarios', end: true },
   { to: '/admin/roles', icon: ShieldCheck, label: 'Gestión de Roles', end: true },
+  { to: '/admin/areas', icon: FolderKanban, label: 'Gestión de Áreas', end: true }, // <-- NUEVO ITEM
 ];
 
 // --- Componente AdminSidebar ---

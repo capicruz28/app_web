@@ -36,6 +36,7 @@ import Administracion from './pages/Administracion'; // Ajusta ruta
 // Páginas de Administración
 import UserManagementPage from './pages/admin/UserManagementPage'; // Ajusta ruta
 import RoleManagementPage from './pages/admin/RoleManagementPage'; // Ajusta ruta
+import AreaManagementPage from './pages/admin/AreaManagementPage';
 // ... (importa otras páginas de admin si las tienes) ...
 
 
@@ -111,6 +112,7 @@ function App() {
                 {/* Páginas específicas de administración (ya no necesitan ProtectedRoute individual) */}
                 <Route path="usuarios" element={<UserManagementPage />} />
                 <Route path="roles" element={<RoleManagementPage />} />
+                <Route path="areas" element={<AreaManagementPage />} />
                 {/* Añade aquí más rutas específicas de admin si las tienes */}
                 {/* Ejemplo: <Route path="permisos" element={<PermissionPage />} /> */}
 
