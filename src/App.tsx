@@ -7,6 +7,9 @@ import { AuthProvider } from './context/AuthContext';   // Ajusta ruta
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
+import { DndProvider } from 'react-dnd'; // <<< Importa DndProvider
+import { HTML5Backend } from 'react-dnd-html5-backend'; // <<< Importa el Backend
+
 // Layouts y Protección
 import ProtectedRoute from './components/ProtectedRoute'; // Ajusta ruta
 import MainLayout from './components/layout/MainLayout'; // Ajusta ruta
@@ -37,6 +40,7 @@ import Administracion from './pages/Administracion'; // Ajusta ruta
 import UserManagementPage from './pages/admin/UserManagementPage'; // Ajusta ruta
 import RoleManagementPage from './pages/admin/RoleManagementPage'; // Ajusta ruta
 import AreaManagementPage from './pages/admin/AreaManagementPage';
+import MenuManagementPage from './pages/admin/MenuManagementPage';
 // ... (importa otras páginas de admin si las tienes) ...
 
 
@@ -100,7 +104,9 @@ function App() {
                 element={
                   // Protección específica: Requiere rol 'admin' para acceder a CUALQUIER ruta /admin/*
                   <ProtectedRoute requiredRole="admin">
+                    <DndProvider backend={HTML5Backend}>
                     <AdminLayout /> {/* Usar el layout específico de admin */}
+                    </DndProvider>
                   </ProtectedRoute>
                 }
               >
@@ -110,9 +116,12 @@ function App() {
                 <Route index element={<Navigate to="usuarios" replace />} />
 
                 {/* Páginas específicas de administración (ya no necesitan ProtectedRoute individual) */}
+                
                 <Route path="usuarios" element={<UserManagementPage />} />
                 <Route path="roles" element={<RoleManagementPage />} />
-                <Route path="areas" element={<AreaManagementPage />} />
+                <Route path="areas" element={<AreaManagementPage />} />                
+                <Route path="menus" element={<MenuManagementPage />} />
+                
                 {/* Añade aquí más rutas específicas de admin si las tienes */}
                 {/* Ejemplo: <Route path="permisos" element={<PermissionPage />} /> */}
 
