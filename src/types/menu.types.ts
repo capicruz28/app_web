@@ -11,6 +11,8 @@ export interface SidebarMenuItem { // Renombrado para claridad (antes MenuItem)
   level?: number; // Hacer opcional si no siempre está
   es_activo: boolean; // Asumiendo que el sidebar solo muestra activos? O filtrar en el componente.
   padre_menu_id: number | null;
+  area_id: number | null;
+  area_nombre: string | null;
   children: SidebarMenuItem[]; // Usa el tipo renombrado recursivamente
 }
 
@@ -52,6 +54,7 @@ export interface BackendManageMenuItem {
   es_activo: boolean; // Incluye activos e inactivos
   area_id?: number | null;
   area_nombre?: string | null; // Si el backend lo incluye
+  level?: number;
   children: BackendManageMenuItem[]; // Estructura anidada del backend
 }
 

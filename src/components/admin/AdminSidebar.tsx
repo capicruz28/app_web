@@ -14,7 +14,8 @@ import {
   FolderKanban,
   Globe, // Icono para las áreas individuales (o elige otro)
   Loader2, // Icono de carga
-  AlertCircle, // Icono de error
+  AlertCircle,
+  Logs, // Icono de error
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -34,7 +35,7 @@ const administrationNavItems: NavItem[] = [
   { to: '/admin/usuarios', icon: Users, label: 'Gestión de Usuarios', end: true },
   { to: '/admin/roles', icon: ShieldCheck, label: 'Gestión de Roles', end: true },
   { to: '/admin/areas', icon: FolderKanban, label: 'Gestión de Áreas', end: true },
-  { to: '/admin/menus', icon: FolderKanban, label: 'Gestión de Menus', end: true },
+  { to: '/admin/menus', icon: Logs, label: 'Gestión de Menus', end: true },
 ];
 
 // --- Componente AdminSidebar ---
