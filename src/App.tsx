@@ -43,6 +43,8 @@ import AreaManagementPage from './pages/admin/AreaManagementPage';
 import MenuManagementPage from './pages/admin/MenuManagementPage';
 // ... (importa otras páginas de admin si las tienes) ...
 
+import EficienciaDashboardPage from './pages/manufactura/costura/EficienciaDashboardPage';
+
 
 const queryClient = new QueryClient();
 
@@ -85,6 +87,7 @@ function App() {
                     <Route path="costura">
                       <Route index element={<Costura />} />
                       <Route path="eficiencia" element={<Eficiencia />} />
+                      <Route path="dashboard_eficiencia" element={<EficienciaDashboardPage />} />
                     </Route>
                     <Route path="acabado" element={<Acabado />} />
                   </Route>

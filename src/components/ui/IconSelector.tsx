@@ -20,12 +20,12 @@ interface IconSelectorProps {
 
 // --- Lista de iconos permitidos (como la definiste) ---
 const allowedIconNames: string[] = [
-  'Home', 'User', 'Users', 'Settings', 'LogOut', 'LogIn', 'Menu',
-  'ChevronDown', 'ChevronRight', 'ChevronLeft', 'ChevronUp', 'Plus',
-  'Edit', 'Trash2', 'Eye', 'EyeOff', 'Save', 'X', 'Check',
-  'AlertTriangle', 'Info', 'HelpCircle', 'FileText', 'BarChart2',
-  'Calendar', 'Clock', 'MapPin', 'Briefcase', 'Factory', 'Scissors',
-  'ShoppingBag', 'Truck', 'ClipboardList', 'TrendingUp','Shirt','BarChart3','Network','TimerReset',
+  'AlarmCheck','Album','AlignVerticalDistributeCenter','AlignEndHorizontal','AlignStartVertical','AppWindow',
+  'AlertTriangle','BaggageClaim','BarChartBig','BarChartHorizontalBig','BarChart2','Briefcase','BarChart3','Calendar', 
+  'Clock','Check','ClipboardList','Edit', 'Eye', 'EyeOff', 'FileText','FileBarChart2','Factory','Home', 
+  'HelpCircle','Info','MapPin','Menu','Network','List','ListChecks','ListTodo','LineChart','LogOut', 'LogIn',
+  'Plus','Settings','Shirt','ShoppingBag','ScissorsLineDashed','Scissors','Save','Trash2','TrendingUp',
+  'TimerReset','Truck','User', 'Users','X'    
   // Añade más si es necesario
 ];
 
