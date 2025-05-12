@@ -24,7 +24,7 @@ const getColorByEstado = (estado: 'success' | 'warning' | 'danger') => {
 
 export const KPIsPrincipales: React.FC<KPIsPrincipalesProps> = ({ kpis }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
       {/* Eficiencia General */}
       <div className={`p-2 rounded-lg shadow flex flex-col items-center justify-center ${getColorByEstado(kpis.estadoEficiencia)}`}>
         <TrendingUp className="w-6 h-6 mb-1" />

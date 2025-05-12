@@ -1,9 +1,10 @@
 // src/App.tsx (MODIFICADO PARA USAR AdminLayout)
 import './index.css'
 
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext'; // Ajusta ruta
 import { AuthProvider } from './context/AuthContext';   // Ajusta ruta
+import { EficienciaProvider } from './context/EficienciaContext'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 
@@ -44,7 +45,15 @@ import MenuManagementPage from './pages/admin/MenuManagementPage';
 // ... (importa otras páginas de admin si las tienes) ...
 
 import EficienciaDashboardPage from './pages/manufactura/costura/EficienciaDashboardPage';
+import TrabajadorListPage from './pages/manufactura/costura/TrabajadorListPage';
+import TrabajadorDetailPage from './pages/manufactura/costura/TrabajadorDetailPage';
 
+// Componente intermedio para agrupar rutas de eficiencia de costura
+const CosturaEficienciaLayout = () => (
+  <EficienciaProvider>
+    <Outlet /> {/* Las rutas anidadas se renderizarán aquí */}
+  </EficienciaProvider>
+);
 
 const queryClient = new QueryClient();
 
@@ -84,10 +93,16 @@ function App() {
                   <Route path="manufactura">
                     <Route index element={<Manufactura />} />
                     <Route path="corte" element={<Corte />} />
-                    <Route path="costura">
+
+                    <Route path="costura" element={<CosturaEficienciaLayout />}>
                       <Route index element={<Costura />} />
                       <Route path="eficiencia" element={<Eficiencia />} />
                       <Route path="dashboard_eficiencia" element={<EficienciaDashboardPage />} />
+                        {/* --- NUEVAS RUTAS PARA REPORTE DE TRABAJADORES --- */}
+                        {/* Estas rutas estarán bajo /manufactura/costura/ */}
+                        <Route path="trabajadores" element={<TrabajadorListPage />} />
+                        <Route path="trabajadores/:codigoTrabajador" element={<TrabajadorDetailPage />} />
+                        {/* --- FIN DE NUEVAS RUTAS --- */}
                     </Route>
                     <Route path="acabado" element={<Acabado />} />
                   </Route>

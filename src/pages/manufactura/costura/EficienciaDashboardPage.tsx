@@ -1,3 +1,4 @@
+// src/pages/manufactura/costura/EficienciaDashboardPage.tsx
 import React from 'react';
 import { EficienciaProvider, useEficiencia } from '../../../context/EficienciaContext';
 import { useEficienciaKPIs } from '../../../hooks/useEficienciaKPIs';
@@ -8,6 +9,7 @@ import { TopCostureros } from '../../../components/costura/TopCostureros';
 import { MapaCalor } from '../../../components/costura/MapaCalor';
 import { TendenciaEficiencia } from '../../../components/costura/TendenciaEficiencia';
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
+import { Link } from 'react-router-dom';
 
 const INPUT_CLASS =
   "block w-full px-2 py-1 text-sm border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100";
@@ -74,7 +76,7 @@ const EficienciaDashboardPage: React.FC = () => {
   const fechaInputsDisabled = filtroFecha !== 'personalizado';
 
   return (
-    <div className="p-2 md:p-4 bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <div className="p-2 md:pt-0 bg-gray-100 dark:bg-gray-900 min-h-screen">
       <header className="mb-1">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
           Dashboard de Eficiencia de Costura {selectedLinea ? `(Línea: ${selectedLinea})` : ''}
@@ -82,7 +84,7 @@ const EficienciaDashboardPage: React.FC = () => {
       </header>
 
       {/* Card de filtros de fecha y accesos rápidos alineados horizontalmente */}
-      <div className="mb-1 p-2 bg-white dark:bg-gray-800 shadow rounded-lg">
+      <div className="mb-2 p-2 bg-white dark:bg-gray-800 shadow rounded-lg">
         <div className="flex flex-row flex-wrap gap-2 items-end">
           <div>
             <label htmlFor="fechaInicio" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">Fecha Inicio</label>
@@ -143,7 +145,7 @@ const EficienciaDashboardPage: React.FC = () => {
         <>
           <KPIsPrincipales kpis={kpis} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-2">
             {/* Eficiencia por Línea */}
             <div className="bg-white dark:bg-gray-800 p-2 shadow rounded-lg flex flex-col min-h-[260px] h-[320px]">
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">Eficiencia Promedio por Línea</h2>
@@ -158,9 +160,17 @@ const EficienciaDashboardPage: React.FC = () => {
             </div>
             {/* Top 10 Costureros */}
             <div className="bg-white dark:bg-gray-800 p-2 shadow rounded-lg flex flex-col min-h-[260px] h-[320px]">
-              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                Top 10 Costureros
-              </h2>
+              <div className="flex justify-between items-center mb-1"> {/* Contenedor para título y enlace */}
+                <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  Top 10 Costureros
+                </h2>
+                <Link 
+                  to="/manufactura/costura/trabajadores" // Enlace a la nueva página de listado
+                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  Ver todos los trabajadores
+                </Link>
+              </div>
               <div className="flex-1 min-h-0 overflow-y-auto">
                 <TopCostureros data={topCostureros} maxVisible={20} className="w-full h-full" />
               </div>
