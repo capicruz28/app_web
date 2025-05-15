@@ -8,13 +8,34 @@ import { EficienciaPorLinea } from '../../../components/costura/EficienciaPorLin
 import { TopCostureros } from '../../../components/costura/TopCostureros';
 import { MapaCalor } from '../../../components/costura/MapaCalor';
 import { TendenciaEficiencia } from '../../../components/costura/TendenciaEficiencia';
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, format } from 'date-fns';
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths, format } from 'date-fns';
 import { Link } from 'react-router-dom';
 
 const INPUT_CLASS =
   "block w-full px-2 py-1 text-sm border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100";
 
 type FiltroFecha = 'semana' | 'mes' | 'personalizado';
+
+const getUltimaSemanaCerrada = () => {
+  const today = new Date();
+  const lastWeek = subWeeks(today, 1);
+  const inicio = startOfWeek(lastWeek, { weekStartsOn: 1 });
+  const fin = endOfWeek(lastWeek, { weekStartsOn: 1 });
+  return {
+    inicio: format(inicio, 'yyyy-MM-dd'),
+    fin: format(fin, 'yyyy-MM-dd'),
+  };
+};
+
+const getUltimoMesCerrado = () => {
+  const lastMonth = subMonths(new Date(), 1);
+  const inicio = startOfMonth(lastMonth);
+  const fin = endOfMonth(lastMonth);
+  return {
+    inicio: format(inicio, 'yyyy-MM-dd'),
+    fin: format(fin, 'yyyy-MM-dd'),
+  };
+};
 
 const EficienciaDashboardPage: React.FC = () => {
   const {
@@ -29,65 +50,58 @@ const EficienciaDashboardPage: React.FC = () => {
     refreshData
   } = useEficiencia();
 
-  // Estado para el filtro de fecha
-  const [filtroFecha, setFiltroFecha] = React.useState<FiltroFecha>('mes');
+  const [filtroFecha, setFiltroFecha] = React.useState<FiltroFecha>('semana');
 
-  // Función para manejar el cambio de línea
+  React.useEffect(() => {
+    if (filtroFecha === 'semana') {
+      const { inicio, fin } = getUltimaSemanaCerrada();
+      setFechaInicio(inicio);
+      setFechaFin(fin);
+    } else if (filtroFecha === 'mes') {
+      const { inicio, fin } = getUltimoMesCerrado();
+      setFechaInicio(inicio);
+      setFechaFin(fin);
+    }
+    // eslint-disable-next-line
+  }, [filtroFecha, setFechaInicio, setFechaFin]);
+
   const handleLineaClick = (linea: string) => {
     setSelectedLinea(selectedLinea === linea ? null : linea);
   };
 
-  // Función para manejar el cambio de fecha
   const handleFechaChange = (setter: (fecha: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setter(e.target.value);
   };
 
-  // Acciones rápidas de fecha
   const handleFiltroFecha = (tipo: FiltroFecha) => {
     setFiltroFecha(tipo);
-    const today = new Date();
-    if (tipo === 'semana') {
-      setFechaInicio(format(startOfWeek(today, { weekStartsOn: 1 }), 'yyyy-MM-dd'));
-      setFechaFin(format(endOfWeek(today, { weekStartsOn: 1 }), 'yyyy-MM-dd'));
-    } else if (tipo === 'mes') {
-      setFechaInicio(format(startOfMonth(today), 'yyyy-MM-dd'));
-      setFechaFin(format(endOfMonth(today), 'yyyy-MM-dd'));
-    }
-    // Si es personalizado, no cambia las fechas, solo habilita los inputs
   };
 
-  // Filtrar datos por línea seleccionada para KPIs y otros gráficos
   const datosFiltrados = React.useMemo(() => {
     if (!data?.datos_reporte) return [];
     if (!selectedLinea) return data.datos_reporte;
     return data.datos_reporte.filter(item => item.linea === selectedLinea);
   }, [data, selectedLinea]);
 
-  // 1. Procesados para TODOS (para Eficiencia por Línea)
   const { eficienciaPorLinea } = useEficienciaProcesada(data?.datos_reporte ?? []);
-
-  // 2. Procesados para la línea seleccionada (para TopCostureros, MapaCalor y Tendencia)
   const { datosMapaCalor, topCostureros, tendenciaEficiencia } = useEficienciaProcesada(datosFiltrados);
-
-  // KPIs usan datosFiltrados
   const { kpis } = useEficienciaKPIs(datosFiltrados, selectedLinea);
 
-  // Inputs de fecha solo habilitados si es personalizado
   const fechaInputsDisabled = filtroFecha !== 'personalizado';
 
   return (
-    <div className="p-2 md:pt-0 bg-gray-100 dark:bg-gray-900 min-h-screen">
-      <header className="mb-1">
+    <div>
+      <header className="mb-3">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
           Dashboard de Eficiencia de Costura {selectedLinea ? `(Línea: ${selectedLinea})` : ''}
         </h1>
       </header>
 
-      {/* Card de filtros de fecha y accesos rápidos alineados horizontalmente */}
-      <div className="mb-2 p-2 bg-white dark:bg-gray-800 shadow rounded-lg">
-        <div className="flex flex-row flex-wrap gap-2 items-end">
+      {/* Card de filtros */}
+      <div className="mb-2 bg-white dark:bg-gray-800 shadow rounded-lg">
+        <div className="p-3 flex flex-row flex-wrap gap-3 items-end">
           <div>
-            <label htmlFor="fechaInicio" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">Fecha Inicio</label>
+            <label htmlFor="fechaInicio" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha Inicio</label>
             <input
               type="date"
               id="fechaInicio"
@@ -98,7 +112,7 @@ const EficienciaDashboardPage: React.FC = () => {
             />
           </div>
           <div>
-            <label htmlFor="fechaFin" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-0.5">Fecha Fin</label>
+            <label htmlFor="fechaFin" className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha Fin</label>
             <input
               type="date"
               id="fechaFin"
@@ -145,7 +159,7 @@ const EficienciaDashboardPage: React.FC = () => {
         <>
           <KPIsPrincipales kpis={kpis} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-2">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mb-2">
             {/* Eficiencia por Línea */}
             <div className="bg-white dark:bg-gray-800 p-2 shadow rounded-lg flex flex-col min-h-[260px] h-[320px]">
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">Eficiencia Promedio por Línea</h2>
@@ -160,12 +174,12 @@ const EficienciaDashboardPage: React.FC = () => {
             </div>
             {/* Top 10 Costureros */}
             <div className="bg-white dark:bg-gray-800 p-2 shadow rounded-lg flex flex-col min-h-[260px] h-[320px]">
-              <div className="flex justify-between items-center mb-1"> {/* Contenedor para título y enlace */}
+              <div className="flex justify-between items-center mb-1">
                 <h2 className="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">
                   Top 10 Costureros
                 </h2>
                 <Link 
-                  to="/manufactura/costura/trabajadores" // Enlace a la nueva página de listado
+                  to="/manufactura/costura/trabajadores"
                   className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
                 >
                   Ver todos los trabajadores
@@ -186,14 +200,14 @@ const EficienciaDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Card Mapa de Calor con scroll horizontal solo dentro del card */}
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-              <div className="bg-white dark:bg-gray-800 p-4 shadow rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                  Mapa de Calor de Eficiencia
-                </h3>
-                <MapaCalor data={datosMapaCalor} />
-              </div>
+          {/* Card Mapa de Calor */}
+          <div className="grid grid-cols-1 gap-2">
+            <div className="bg-white dark:bg-gray-800 p-3 shadow rounded-lg">
+              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3">
+                Mapa de Calor de Eficiencia
+              </h3>
+              <MapaCalor data={datosMapaCalor} />
+            </div>
           </div>
         </>
       ) : (

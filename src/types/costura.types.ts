@@ -42,3 +42,46 @@ export interface EficienciaCosturaItem {
     eficiencia_promedio_general_periodo?: number | null;
     debug_note?: string | null; // Importante para la Opción C
   }
+
+  //DETALLE DE TRABAJADOR
+  export interface OperacionAnalisis {
+    codigo: string;
+    nombre: string;
+    cantidadPrendas: number;
+    minutosProducidos: number;
+    eficiencia: number;
+    tiempoPromedioPrenda: number;
+  }
+  
+  export interface AnalisisDiario {
+    fecha: string;
+    eficiencia: number;
+    prendas: number;
+    minutosProducidos: number;
+    minutosDisponibles: number;
+    operacionesDia: number;
+  }
+  
+  export interface EstadisticasTrabajador {
+    eficienciaMaxima: number;
+    eficienciaMinima: number;
+    diasSobrePromedio: number;
+    operacionMasEficiente: OperacionAnalisis;
+    operacionMenosEficiente: OperacionAnalisis;
+    tendenciaEficiencia: 'ascendente' | 'descendente' | 'estable';
+  }
+  
+  export interface TrabajadorDetalle {
+    codigo: string;
+    nombre: string;
+    lineaPrincipal: string;
+    eficienciaPromedio: number;
+    minutosProducidosTotal: number;
+    minutosDisponiblesTotal: number;
+    prendasTotal: number;
+    diasTrabajados: number;
+    tendenciaDiaria: { fecha: string; eficiencia: number }[];
+    operaciones: OperacionAnalisis[];
+    analisisDiario: AnalisisDiario[];
+    estadisticas: EstadisticasTrabajador;
+  }
