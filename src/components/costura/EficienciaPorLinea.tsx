@@ -16,8 +16,8 @@ interface EficienciaPorLineaProps {
 }
 
 const getColorByEficiencia = (eficiencia: number) => {
-  if (eficiencia >= 90) return '#22c55e'; // verde
-  if (eficiencia >= 80) return '#eab308'; // amarillo
+  if (eficiencia >= 60) return '#22c55e'; // verde
+  if (eficiencia >= 50) return '#eab308'; // amarillo
   return '#ef4444'; // rojo
 };
 

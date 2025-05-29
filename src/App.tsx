@@ -48,6 +48,8 @@ import EficienciaDashboardPage from './pages/manufactura/costura/EficienciaDashb
 import TrabajadorListPage from './pages/manufactura/costura/TrabajadorListPage';
 import TrabajadorDetailPage from './pages/manufactura/costura/TrabajadorDetailPage';
 
+import CuentasCobrarPagarPage from './pages/administracion/CuentasCobrarPagarPage';
+
 // Componente intermedio para agrupar rutas de eficiencia de costura
 const CosturaEficienciaLayout = () => (
   <EficienciaProvider>
@@ -107,7 +109,11 @@ function App() {
                     <Route path="acabado" element={<Acabado />} />
                   </Route>
                   {/* Si /administracion es una página normal, va aquí */}
-                  <Route path="administracion" element={<Administracion />} />
+                  <Route path="administracion">
+                    <Route index element={<Administracion />} />
+                    <Route path="cuentas-cobrar-pagar" element={<CuentasCobrarPagarPage />} />
+                    {/* Aquí puedes agregar más subrutas de administración en el futuro */}
+                  </Route>
 
                   {/* Catch-all DENTRO de MainLayout: redirige a /home si la ruta no existe */}
                   <Route path="*" element={<Navigate to="/home" replace />} />

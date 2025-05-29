@@ -13,10 +13,10 @@ interface MapaCalorProps {
 
 const getColorByEficiencia = (eficiencia: number) => {
   // Escala de colores más suave
-  if (eficiencia >= 90) return 'bg-green-100 dark:bg-green-900';
-  if (eficiencia >= 85) return 'bg-green-50 dark:bg-green-800';
-  if (eficiencia >= 80) return 'bg-yellow-100 dark:bg-yellow-900';
-  if (eficiencia >= 75) return 'bg-yellow-50 dark:bg-yellow-800';
+  if (eficiencia >= 65) return 'bg-green-100 dark:bg-green-900';
+  if (eficiencia >= 60) return 'bg-green-50 dark:bg-green-800';
+  if (eficiencia >= 55) return 'bg-yellow-100 dark:bg-yellow-900';
+  if (eficiencia >= 50) return 'bg-yellow-50 dark:bg-yellow-800';
   return 'bg-red-100 dark:bg-red-900';
 };
 
