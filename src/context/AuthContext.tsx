@@ -35,6 +35,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Estado para saber si se está verificando el token al cargar la app
   const [loading, setLoading] = useState<boolean>(true);
 
+
   // Efecto para verificar el token almacenado en cookies al cargar la aplicación
   useEffect(() => {
     const verifyTokenOnLoad = async () => {
@@ -108,6 +109,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAuthState(initialAuthState); // Resetear el estado de React
     // Opcional: Redirigir a /login aquí si se prefiere
     // window.location.href = '/login'; // Redirección dura
+    window.location.href = '/login';    
   };
 
   // Calcular si el usuario está autenticado (basado en si hay token y usuario, y no estamos cargando)

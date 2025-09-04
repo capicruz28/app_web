@@ -29,7 +29,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole, children 
   if (!isAuthenticated) {
     console.log(`ProtectedRoute: Not authenticated (loading: ${loading}). Redirecting to login from ${location.pathname}`);
     // Guardar la ubicación a la que intentaba acceder para redirigir de vuelta
-    return <Navigate to="/login" state={{ from: location }} replace />;
+     const redirectState = location.pathname !== '/unauthorized' ? { from: location } : undefined;
+     return <Navigate to="/login" state={redirectState} replace />;
+    //return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // 3. Si está autenticado, verificar si se requiere un rol específico
