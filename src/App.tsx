@@ -23,17 +23,16 @@ import UnauthorizedPage from './pages/UnauthorizedPage'; // Ajusta ruta
 // Páginas Principales/Normales (Importaciones sin cambios)
 import Home from './pages/Home'; // Ajusta ruta
 import RecursosHumanos from './pages/RecursosHumanos'; // Ajusta ruta
-import Asistencia from './pages/recursos-humanos/Asistencia'; // Ajusta ruta
-import Vacaciones from './pages/recursos-humanos/Vacaciones'; // Ajusta ruta
+
 import Planeamiento from './pages/Planeamiento'; // Ajusta ruta
 import Ontime from './pages/planeamiento/Ontime'; // Ajusta ruta
-import Despacho from './pages/planeamiento/Despacho'; // Ajusta ruta
+
 import LeadTime from './pages/planeamiento/LeadTime'; // Ajusta ruta
 import Textil from './pages/Textil'; // Ajusta ruta
 import Manufactura from './pages/Manufactura'; // Ajusta ruta
 import Corte from './pages/manufactura/Corte'; // Ajusta ruta
 import Costura from './pages/manufactura/Costura'; // Ajusta ruta
-import Eficiencia from './pages/manufactura/costura/Eficiencia'; // Ajusta ruta
+
 import Acabado from './pages/manufactura/Acabado'; // Ajusta ruta
 import Administracion from './pages/Administracion'; // Ajusta ruta
 
@@ -82,13 +81,12 @@ function App() {
                   <Route path="home" element={<Home />} />
                   <Route path="recursos-humanos">
                     <Route index element={<RecursosHumanos />} />
-                    <Route path="asistencia" element={<Asistencia />} />
-                    <Route path="vacaciones" element={<Vacaciones />} />
+                    
                   </Route>
                   <Route path="planeamiento">
                     <Route index element={<Planeamiento />} />
                     <Route path="ontime" element={<Ontime />} />
-                    <Route path="despacho" element={<Despacho />} />
+                    
                     <Route path="leadtime" element={<LeadTime />} />
                   </Route>
                   <Route path="textil" element={<Textil />} />
@@ -98,7 +96,7 @@ function App() {
 
                     <Route path="costura" element={<CosturaEficienciaLayout />}>
                       <Route index element={<Costura />} />
-                      <Route path="eficiencia" element={<Eficiencia />} />
+                      
                       <Route path="dashboard_eficiencia" element={<EficienciaDashboardPage />} />
                         {/* --- NUEVAS RUTAS PARA REPORTE DE TRABAJADORES --- */}
                         {/* Estas rutas estarán bajo /manufactura/costura/ */}
